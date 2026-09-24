@@ -8,7 +8,6 @@ export default function ConfirmModal({
   onConfirm,
   onCancel,
 }) {
-  // Escape closes the popup
   useEffect(() => {
     const onKey = (e) => {
       if (e.key === 'Escape') onCancel();
@@ -26,16 +25,20 @@ export default function ConfirmModal({
         role="dialog"
         aria-modal="true"
         aria-label={title}
-        className="w-full max-w-sm rounded-xl bg-white p-5 shadow-xl"
+        className="w-full max-w-sm cursor-default rounded-xl bg-white p-5 shadow-xl dark:bg-gray-800"
         onClick={(e) => e.stopPropagation()}
       >
-        <h2 className="text-lg font-semibold text-gray-800">{title}</h2>
-        <p className="mt-2 break-words text-sm text-gray-600">{message}</p>
+        <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-100">
+          {title}
+        </h2>
+        <p className="mt-2 break-words text-sm text-gray-600 dark:text-gray-300">
+          {message}
+        </p>
 
         <div className="mt-5 flex justify-end gap-2">
           <button
             onClick={onCancel}
-            className="rounded-lg border border-gray-300 px-4 py-2 text-sm hover:bg-gray-100"
+            className="rounded-lg border border-gray-300 px-4 py-2 text-sm hover:bg-gray-100 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
           >
             Cancel
           </button>

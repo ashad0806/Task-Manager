@@ -1,1 +1,44 @@
 @import "tailwindcss";
+
+/* Tailwind v4: enable dark mode via a ".dark" class on <html> */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Make native controls (date picker, scrollbars) match the theme */
+html.dark {
+  color-scheme: dark;
+}
+
+/* New tasks fade and slide in */
+@keyframes task-in {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.task-enter {
+  animation: task-in 0.2s ease-out;
+}
+
+/* Overdue tasks get a thick red bar on the left */
+.task-overdue {
+  border-left: 4px solid #dc2626;
+}
+
+/* Drag-and-drop feedback */
+.task-dragging {
+  opacity: 0.4;
+}
+.task-drag-over {
+  outline: 2px dashed #6366f1;
+  outline-offset: 2px;
+}
+[draggable="true"] {
+  cursor: grab;
+}
+[draggable="true"]:active {
+  cursor: grabbing;
+}

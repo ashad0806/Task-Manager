@@ -1,14 +1,27 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import useLocalStorage from './hooks/useLocalStorage';
+import { getDueStatus } from './utils/dates';
 import TaskForm from './components/TaskForm';
 import TaskList from './components/TaskList';
 import FilterBar from './components/FilterBar';
 import Stats from './components/Stats';
+import ThemeToggle from './components/ThemeToggle';
+
+const systemTheme = () =>
+  window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
 
 function App() {
   const [tasks, setTasks] = useLocalStorage('tasks', []);
+  const [theme, setTheme] = useLocalStorage('theme', systemTheme());
   const [filter, setFilter] = useState('all');
   const [categoryFilter, setCategoryFilter] = useState('All');
+
+  // Put/remove the "dark" class on <html> whenever the theme changes
+  useEffect(() => {
+    document.documentElement.classList.toggle('dark', theme === 'dark');
+  }, [theme]);
+
+  const toggleTheme = () => setTheme((t) => (t === 'dark' ? 'light' : 'dark'));
 
   const addTask = ({ text, category, dueDate }) => {
     const newTask = {
@@ -38,11 +51,25 @@ function App() {
     );
   };
 
+  // DRAG-AND-DROP: move the dragged task to the target task's position
+  const reorderTasks = (dragId, targetId) => {
+    setTasks((prev) => {
+      const from = prev.findIndex((t) => t.id === dragId);
+      const to = prev.findIndex((t) => t.id === targetId);
+      if (from === -1 || to === -1 || from === to) return prev;
+
+      const next = [...prev];
+      const [moved] = next.splice(from, 1);
+      next.splice(to, 0, moved);
+      return next;
+    });
+  };
+
   // Live counts (always based on ALL tasks)
   const completedCount = tasks.filter((t) => t.completed).length;
   const remainingCount = tasks.length - completedCount;
+  const overdueCount = tasks.filter((t) => getDueStatus(t) === 'overdue').length;
 
-  // Apply status + category filters
   const visibleTasks = tasks.filter((t) => {
     const statusOk =
       filter === 'all' ||
@@ -53,11 +80,20 @@ function App() {
   });
 
   return (
-    <div className="min-h-screen bg-gray-100 px-4 py-10">
-      <main className="mx-auto max-w-2xl rounded-xl bg-white p-6 shadow">
-        <h1 className="mb-4 text-2xl font-bold text-indigo-600">My Tasks</h1>
+    <div className="min-h-screen bg-gray-100 px-4 py-10 dark:bg-gray-900">
+      <main className="mx-auto max-w-2xl rounded-xl bg-white p-6 shadow dark:bg-gray-800">
+        <div className="mb-4 flex items-center justify-between">
+          <h1 className="text-2xl font-bold text-indigo-600 dark:text-indigo-400">
+            My Tasks
+          </h1>
+          <ThemeToggle theme={theme} onToggle={toggleTheme} />
+        </div>
 
-        <Stats remaining={remainingCount} completed={completedCount} />
+        <Stats
+          remaining={remainingCount}
+          completed={completedCount}
+          overdue={overdueCount}
+        />
 
         <TaskForm onAdd={addTask} />
 
@@ -73,6 +109,7 @@ function App() {
           onToggle={toggleTask}
           onDelete={deleteTask}
           onEdit={editTask}
+          onReorder={reorderTasks}
         />
       </main>
     </div>
