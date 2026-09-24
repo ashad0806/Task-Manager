@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { CATEGORIES } from '../utils/constants';
+import { ConfirmModal } from './ConfirmModal';
 
 const BADGE_STYLES = {
   Work: 'bg-blue-100 text-blue-700',
@@ -16,6 +17,9 @@ export default function TaskItem({ task, onToggle, onDelete, onEdit }) {
   const [draftCategory, setDraftCategory] = useState(task.category);
   const [draftDate, setDraftDate] = useState(task.dueDate);
 
+  // null | 'delete' | 'save'  (which confirmation popup is open)
+  const [confirming, setConfirming] = useState(null);
+
   const startEdit = () => {
     setDraftText(task.text);
     setDraftCategory(task.category);
@@ -23,23 +27,67 @@ export default function TaskItem({ task, onToggle, onDelete, onEdit }) {
     setIsEditing(true);
   };
 
-  const saveEdit = () => {
+  const cancelEdit = () => setIsEditing(false);
+
+  // Step 1: user clicks Save -> validate, then ask for confirmation
+  const requestSave = () => {
     if (!draftText.trim()) return;
+
+    const unchanged =
+      draftText.trim() === task.text &&
+      draftCategory === task.category &&
+      draftDate === task.dueDate;
+
+    if (unchanged) {
+      setIsEditing(false); // nothing to save, no popup needed
+      return;
+    }
+    setConfirming('save');
+  };
+
+  // Step 2: user confirms -> actually save
+  const confirmSave = () => {
     onEdit(task.id, {
       text: draftText.trim(),
       category: draftCategory,
       dueDate: draftDate,
     });
+    setConfirming(null);
     setIsEditing(false);
   };
 
-  const cancelEdit = () => setIsEditing(false);
+  const confirmDelete = () => {
+    setConfirming(null);
+    onDelete(task.id);
+  };
 
   const handleKeyDown = (e) => {
-    if (e.key === 'Enter') saveEdit();
+    if (e.key === 'Enter') requestSave();
     if (e.key === 'Escape') cancelEdit();
   };
 
+  // The popup (shown on top of the page when needed)
+  const modal =
+    confirming === 'delete' ? (
+      <ConfirmModal
+        title="Delete this task?"
+        message={`"${task.text}" will be permanently removed.`}
+        confirmLabel="Delete"
+        danger
+        onConfirm={confirmDelete}
+        onCancel={() => setConfirming(null)}
+      />
+    ) : confirming === 'save' ? (
+      <ConfirmModal
+        title="Save changes?"
+        message="Your edits will replace the current task details."
+        confirmLabel="Save"
+        onConfirm={confirmSave}
+        onCancel={() => setConfirming(null)}
+      />
+    ) : null;
+
+  // ---------- EDIT MODE ----------
   if (isEditing) {
     return (
       <li className="flex flex-col gap-2 rounded-lg border border-indigo-300 p-3 sm:flex-row sm:items-center">
@@ -71,7 +119,7 @@ export default function TaskItem({ task, onToggle, onDelete, onEdit }) {
         />
         <div className="flex gap-2">
           <button
-            onClick={saveEdit}
+            onClick={requestSave}
             className="rounded bg-indigo-600 px-3 py-1 text-sm text-white hover:bg-indigo-700"
           >
             Save
@@ -83,10 +131,12 @@ export default function TaskItem({ task, onToggle, onDelete, onEdit }) {
             Cancel
           </button>
         </div>
+        {modal}
       </li>
     );
   }
 
+  // ---------- NORMAL MODE ----------
   return (
     <li className="flex items-center gap-3 rounded-lg border border-gray-200 p-3">
       <input
@@ -123,11 +173,13 @@ export default function TaskItem({ task, onToggle, onDelete, onEdit }) {
         Edit
       </button>
       <button
-        onClick={() => onDelete(task.id)}
+        onClick={() => setConfirming('delete')}
         className="text-sm text-red-600 hover:underline"
       >
         Delete
       </button>
+
+      {modal}
     </li>
   );
 }
