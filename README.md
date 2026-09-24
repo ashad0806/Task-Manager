@@ -2,7 +2,6 @@
 
 A task-management web app for adding, organizing and tracking daily to-dos. Built with **React**, **Vite** and **Tailwind CSS**. Tasks are saved in the browser, so they are still there after a page refresh.
 
-**Live demo:** https://ashad0806.github.io/Task-Manager/
 **Repository:** https://github.com/ashad0806/Task-Manager
 
 ## Features
