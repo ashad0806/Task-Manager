@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { CATEGORIES } from '../utils/constants';
-import { ConfirmModal } from './ConfirmModal';
+import  ConfirmModal  from './ConfirmModal';
 
 const BADGE_STYLES = {
   Work: 'bg-blue-100 text-blue-700',
