@@ -5,6 +5,9 @@ const BADGE_STYLES = {
   Work: 'bg-blue-100 text-blue-700',
   Personal: 'bg-green-100 text-green-700',
   Urgent: 'bg-red-100 text-red-700',
+  College: 'bg-purple-100 text-purple-700',
+  Shopping: 'bg-yellow-100 text-yellow-700',
+  Others: 'bg-gray-100 text-gray-700',
 };
 
 export default function TaskItem({ task, onToggle, onDelete, onEdit }) {
