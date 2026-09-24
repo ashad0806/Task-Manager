@@ -106,14 +106,14 @@ src/
 
 ## Testing Checklist
 
-- [ ] Add a task with a category and due date
-- [ ] Empty tasks are rejected
-- [ ] Mark a task complete and undo it
-- [ ] Edit a task (Save, Cancel and Escape all behave correctly)
-- [ ] Deleting and saving edits both ask for confirmation
-- [ ] Filters (All / Active / Completed) and the category filter work
-- [ ] Counters update after every change
-- [ ] Refreshing the page keeps all tasks
+- [x] Add a task with a category and due date
+- [x] Empty tasks are rejected
+- [x] Mark a task complete and undo it
+- [x] Edit a task (Save, Cancel and Escape all behave correctly)
+- [x] Deleting and saving edits both ask for confirmation
+- [x] Filters (All / Active / Completed) and the category filter work
+- [x] Counters update after every change
+- [x] Refreshing the page keeps all tasks
 
 ## Deployment
 
