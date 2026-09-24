@@ -24,9 +24,9 @@ A task-management web app for adding, organizing and tracking daily to-dos. Buil
 ### Stretch goals
 
 - [x] Due dates
-- [ ] Overdue indicators for late tasks
-- [ ] Dark / light theme toggle
-- [ ] Drag-and-drop reordering
+- [x] Overdue indicators for late tasks
+- [x] Dark / light theme toggle
+- [x] Drag-and-drop reordering
 
 ## Tech Stack
 
