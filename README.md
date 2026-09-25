@@ -1,29 +1,33 @@
-# Wallex
+# Personal Task Manager
 
-A personal expense-tracking web app for logging income and expenses, viewing a running balance, and understanding spending habits at a glance. Built with React and Vite. Transactions, budget, and theme are saved in the browser, so they're still there after a page refresh.
+A task-management web app for adding, organizing and tracking daily to-dos. Built with **React**, **Vite** and **Tailwind CSS**. Tasks are saved in the browser, so they are still there after a page refresh.
 
-Repository: https://github.com/ashad0806/Expence_Tracker
+**Live demo:** https://ashad0806.github.io/Task-Manager/
+**Repository:** https://github.com/ashad0806/Task-Manager
 
 ## Features
 
 ### Core features
-- Add transactions with a description, amount, type (income/expense), and category.
-- Delete individual transactions.
-- Running balance (income − expenses), with income and expense totals shown separately.
-- Filter transactions by category, and sort by date or amount (ascending/descending).
-- Persistence: all transactions are stored in `localStorage` and survive a page refresh.
+
+- **Add, edit, delete and complete tasks.** Edit tasks inline (text, category and due date).
+- **Filter by status:** All, Active or Completed.
+- **Categories:** Work, Personal, College, Shopping, Other and Urgent, with color-coded badges. Tasks can also be filtered by category.
+- **Persistence:** all tasks are stored in `localStorage` and survive a page refresh.
+- **Live counters:** the number of remaining and completed tasks updates instantly.
 
 ### Extras
-- Confirmation modal before deleting a transaction, to prevent accidents.
-- "View All / Show Less" toggle — only the 5 most relevant transactions show by default.
-- Light/dark theme toggle, with the chosen theme remembered across visits.
-- Input validation: transactions with an empty description or amount are rejected.
-- Two-column responsive layout that reflows to a single column on mobile.
+
+- **Confirmation popups** before deleting a task or saving an edit, to prevent accidents.
+- **Due dates** can be set on each task.
+- **Input validation:** empty or whitespace-only tasks are rejected.
+- **Responsive layout** that works on mobile and desktop.
 
 ### Stretch goals
-- [x] Spending-by-category chart
-- [x] Monthly summary view (income, expense, and net grouped by month)
-- [x] Budget limit with a donut-chart progress indicator and an overspend warning
+
+- [x] Due dates
+- [x] Overdue indicators for late tasks
+- [x] Dark / light theme toggle
+- [x] Drag-and-drop reordering
 
 ## Tech Stack
 
@@ -31,100 +35,107 @@ Repository: https://github.com/ashad0806/Expence_Tracker
 |---|---|
 | React | UI components and state |
 | Vite | Dev server and build tool |
-| Plain CSS (CSS Grid, custom properties) | Styling and light/dark theming |
-| Inline SVG | Budget donut chart |
-| localStorage | Saving transactions, budget, and theme in the browser |
+| Tailwind CSS | Styling |
+| localStorage | Saving tasks in the browser |
 
 ## Getting Started
 
-You need Node.js (version 18 or newer).
-1. Clone the repository
+You need [Node.js](https://nodejs.org/) (version 18 or newer).
 
-git clone https://github.com/ashad0806/Expence_Tracker.git
+```bash
+# 1. Clone the repository
+git clone https://github.com/ashad0806/Task-Manager.git
 
-2. Go into the project folder
+# 2. Go into the project folder
+cd Task-Manager
 
-cd Expence_Tracker
-
-3. Install dependencies
-
+# 3. Install dependencies
 npm install
 
-4. Start the development server
-
+# 4. Start the development server
 npm run dev
-
+```
 
 Then open the address shown in the terminal (usually `http://localhost:5173`).
 
 ### Other commands
 
-npm run build # create a production build in /dist
-npm run preview # preview the production build locally
-
+```bash
+npm run build     # create a production build in /dist
+npm run preview   # preview the production build locally
+```
 
 ## Project Structure
 
+```
 src/
-├── Components/
-│ ├── Navbar.jsx # Top navigation and theme toggle
-│ ├── Balance.jsx # Running balance summary card
-│ ├── TransactionForm.jsx # Form for adding a transaction
-│ ├── TransactionList.jsx # List of transactions, empty state, view-more toggle
-│ ├── TransactionItem.jsx # Single transaction row
-│ ├── ConfirmModal.jsx # Reusable confirmation popup
-│ ├── FilterBar.jsx # Category filter and sort controls
-│ ├── BudgetTracker.jsx # Monthly budget donut chart and warning
-│ ├── CategoryChart.jsx # Spending-by-category bar chart
-│ └── MonthlySummary.jsx # Monthly income/expense/net summary
-├── App.jsx # Main state and transaction logic
-├── App.css # All application styling, including theme variables
-└── main.jsx # App entry point
-
+├── components/
+│   ├── ConfirmModal.jsx   # Reusable confirmation popup
+│   ├── FilterBar.jsx      # Status and category filters
+│   ├── Stats.jsx          # Remaining / completed / overdue counters
+│   ├── TaskForm.jsx       # Form for adding tasks
+│   ├── TaskItem.jsx       # Single task row with inline editing and drag handle
+│   ├── TaskList.jsx       # List of tasks, empty state and drag-and-drop logic
+│   └── ThemeToggle.jsx    # Dark / light theme switch
+├── hooks/
+│   └── useLocalStorage.js # State hook that syncs with localStorage
+├── utils/
+│   ├── constants.js       # Category list
+│   ├── dates.js           # Due-date and overdue helpers
+│   ├── storage.js         # Safe localStorage read/write helpers
+│   └── styles.js          # Shared input styling
+├── App.jsx                # Main state and task logic
+├── App.css                # Tailwind import + custom CSS (theme, animations, drag styles)
+└── main.jsx                # App entry point
+```
 
 ## How It Works
 
-- State lives in `App.jsx`. It holds the transaction list, active view, filters, and theme, and passes the relevant data and handler functions down to child components as props.
-- Transactions and the theme choice are persisted with `useEffect`, which writes to `localStorage` whenever they change; both are read back on load using a `useState` initializer function.
-- Each transaction is stored as an object:
+- **State lives in `App.jsx`.** It holds the task list, theme and filters, and passes data and functions down to child components as props.
+- **`useLocalStorage`** is a custom hook that works like `useState`, but loads its initial value from `localStorage` and saves automatically whenever the value changes. It is used for tasks and for the selected theme.
+- **Each task** is stored as an object:
 
 ```js
-  {
-    id: 1790000000000,
-    description: "Groceries",
-    amount: -50,
-    category: "Personal",
-    date: "2026-09-05"
-  }
+{
+  id: 'unique-id',
+  text: 'Finish assignment',
+  category: 'College',
+  dueDate: '2026-10-01',
+  completed: false,
+  createdAt: 1790000000000
+}
 ```
 
-  Income is stored as a positive `amount`, expenses as negative — this single sign convention is what lets the balance, chart, and budget components all do simple arithmetic.
-- Filtering and sorting are derived, not stored. The visible transaction list is recalculated from the full list and the current filter/sort settings on every render, so the balance and charts always stay accurate regardless of what's currently filtered.
+- **Filtering is derived, not stored.** The visible list is calculated from the full task list and the current filters on every render, so the counters always stay accurate.
+- **Overdue tasks** are detected by comparing `dueDate` with today's date and are highlighted with a red border and badge.
+- **Dark mode** toggles a `dark` class on the page, which Tailwind's `dark:` classes respond to.
+- **Drag-and-drop** uses the browser's native drag events to reorder tasks, and the new order is saved automatically.
 
 ## Testing Checklist
 
-- [x] Add a transaction with a category and amount
-- [x] Empty description or amount is rejected
-- [x] Delete a transaction (confirmation modal appears and works)
-- [x] Filter by category and by "All"
-- [x] Sort by date and by amount, both directions
-- [x] Balance, category chart, and monthly summary all update correctly
-- [x] Set a budget and confirm the donut chart and overspend warning work
-- [x] Toggle dark/light theme and refresh — theme choice is remembered
-- [x] Refreshing the page keeps all transactions
+- [x] Add a task with a category and due date
+- [x] Empty tasks are rejected
+- [x] Mark a task complete and undo it
+- [x] Edit a task (Save, Cancel and Escape all behave correctly)
+- [x] Deleting and saving edits both ask for confirmation
+- [x] Filters (All / Active / Completed) and the category filter work
+- [x] Counters update after every change
+- [x] A task with a past due date shows the overdue badge and style
+- [x] The theme toggle switches and persists after a refresh
+- [x] Dragging a task reorders the list and the order persists
+- [x] Refreshing the page keeps all tasks
+- 
+## Deployment
 
-## Deployment (optional)
+The app is deployed to GitHub Pages using the `gh-pages` package.
 
-To deploy to GitHub Pages using the `gh-pages` package:
-
-npm install gh-pages --save-dev
+```bash
 npm run deploy
+```
 
-
-Set `base: '/Expence_Tracker/'` in `vite.config.js` first, so the built files load correctly from the repository path.
+`vite.config.js` sets `base: '/Task-Manager/'` so the built files load correctly from the repository path.
 
 ## Author
 
-Ashad Alam
-💻 **GitHub:** [github.com/ashad0806](https://github.com/ashad0806)
-🌐 **Live Website:** [Expense Tracker](https://expence-tracker-bay-pi.vercel.app/)
+**Ashad Alam**
+GitHub: [@ashad0806](https://github.com/ashad0806)
