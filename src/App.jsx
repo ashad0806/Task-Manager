@@ -6,6 +6,7 @@ import TaskList from './components/TaskList';
 import FilterBar from './components/FilterBar';
 import Stats from './components/Stats';
 import ThemeToggle from './components/ThemeToggle';
+import SearchBox from './components/SearchBox';
 
 const systemTheme = () =>
   window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
@@ -15,8 +16,8 @@ function App() {
   const [theme, setTheme] = useLocalStorage('theme', systemTheme());
   const [filter, setFilter] = useState('all');
   const [categoryFilter, setCategoryFilter] = useState('All');
+  const [searchText, setSearchText] = useState('');
 
-  // Put/remove the "dark" class on <html> whenever the theme changes
   useEffect(() => {
     document.documentElement.classList.toggle('dark', theme === 'dark');
   }, [theme]);
@@ -51,7 +52,6 @@ function App() {
     );
   };
 
-  // DRAG-AND-DROP: move the dragged task to the target task's position
   const reorderTasks = (dragId, targetId) => {
     setTasks((prev) => {
       const from = prev.findIndex((t) => t.id === dragId);
@@ -65,7 +65,6 @@ function App() {
     });
   };
 
-  // Live counts (always based on ALL tasks)
   const completedCount = tasks.filter((t) => t.completed).length;
   const remainingCount = tasks.length - completedCount;
   const overdueCount = tasks.filter((t) => getDueStatus(t) === 'overdue').length;
@@ -76,7 +75,10 @@ function App() {
       (filter === 'active' && !t.completed) ||
       (filter === 'completed' && t.completed);
     const categoryOk = categoryFilter === 'All' || t.category === categoryFilter;
-    return statusOk && categoryOk;
+    const searchOk =
+      !searchText.trim() ||
+      t.text.toLowerCase().includes(searchText.trim().toLowerCase());
+    return statusOk && categoryOk && searchOk;
   });
 
   return (
@@ -96,6 +98,8 @@ function App() {
         />
 
         <TaskForm onAdd={addTask} />
+
+        <SearchBox value={searchText} onChange={setSearchText} />
 
         <FilterBar
           filter={filter}
