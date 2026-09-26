@@ -11,7 +11,7 @@ A task-management web app for adding, organizing and tracking daily to-dos. Buil
 
 - **Add, edit, delete and complete tasks.** Edit tasks inline (text, category and due date).
 - **Filter by status:** All, Active or Completed.
-- **Categories:** Work, Personal, College/Student and Urgent, with color-coded badges. Tasks can also be filtered by category.
+- **Categories:** Work, Personal, College, Shopping, Other and Urgent, with color-coded badges. Tasks can also be filtered by category.
 - **Persistence:** all tasks are stored in `localStorage` and survive a page refresh.
 - **Live counters:** the number of remaining and completed tasks updates instantly.
 
@@ -25,9 +25,9 @@ A task-management web app for adding, organizing and tracking daily to-dos. Buil
 ### Stretch goals
 
 - [x] Due dates
-- [ ] Overdue indicators for late tasks
-- [ ] Dark / light theme toggle
-- [ ] Drag-and-drop reordering
+- [x] Overdue indicators for late tasks
+- [x] Dark / light theme toggle
+- [x] Drag-and-drop reordering
 
 ## Tech Stack
 
@@ -72,24 +72,27 @@ src/
 ├── components/
 │   ├── ConfirmModal.jsx   # Reusable confirmation popup
 │   ├── FilterBar.jsx      # Status and category filters
-│   ├── Stats.jsx          # Remaining / completed counters
+│   ├── Stats.jsx          # Remaining / completed / overdue counters
 │   ├── TaskForm.jsx       # Form for adding tasks
-│   ├── TaskItem.jsx       # Single task row with inline editing
-│   └── TaskList.jsx       # List of tasks and empty state
+│   ├── TaskItem.jsx       # Single task row with inline editing and drag handle
+│   ├── TaskList.jsx       # List of tasks, empty state and drag-and-drop logic
+│   └── ThemeToggle.jsx    # Dark / light theme switch
 ├── hooks/
 │   └── useLocalStorage.js # State hook that syncs with localStorage
 ├── utils/
 │   ├── constants.js       # Category list
-│   └── storage.js         # Safe localStorage read/write helpers
+│   ├── dates.js           # Due-date and overdue helpers
+│   ├── storage.js         # Safe localStorage read/write helpers
+│   └── styles.js          # Shared input styling
 ├── App.jsx                # Main state and task logic
-├── App.css                # Tailwind import
-└── main.jsx               # App entry point
+├── App.css                # Tailwind import + custom CSS (theme, animations, drag styles)
+└── main.jsx                # App entry point
 ```
 
 ## How It Works
 
-- **State lives in `App.jsx`.** It holds the task list and the add, edit, delete and toggle functions, and passes them down to child components as props.
-- **`useLocalStorage`** is a custom hook that works like `useState`, but loads its initial value from `localStorage` and saves automatically whenever the value changes.
+- **State lives in `App.jsx`.** It holds the task list, theme and filters, and passes data and functions down to child components as props.
+- **`useLocalStorage`** is a custom hook that works like `useState`, but loads its initial value from `localStorage` and saves automatically whenever the value changes. It is used for tasks and for the selected theme.
 - **Each task** is stored as an object:
 
 ```js
@@ -104,18 +107,24 @@ src/
 ```
 
 - **Filtering is derived, not stored.** The visible list is calculated from the full task list and the current filters on every render, so the counters always stay accurate.
+- **Overdue tasks** are detected by comparing `dueDate` with today's date and are highlighted with a red border and badge.
+- **Dark mode** toggles a `dark` class on the page, which Tailwind's `dark:` classes respond to.
+- **Drag-and-drop** uses the browser's native drag events to reorder tasks, and the new order is saved automatically.
 
 ## Testing Checklist
 
-- [ ] Add a task with a category and due date
-- [ ] Empty tasks are rejected
-- [ ] Mark a task complete and undo it
-- [ ] Edit a task (Save, Cancel and Escape all behave correctly)
-- [ ] Deleting and saving edits both ask for confirmation
-- [ ] Filters (All / Active / Completed) and the category filter work
-- [ ] Counters update after every change
-- [ ] Refreshing the page keeps all tasks
-
+- [x] Add a task with a category and due date
+- [x] Empty tasks are rejected
+- [x] Mark a task complete and undo it
+- [x] Edit a task (Save, Cancel and Escape all behave correctly)
+- [x] Deleting and saving edits both ask for confirmation
+- [x] Filters (All / Active / Completed) and the category filter work
+- [x] Counters update after every change
+- [x] A task with a past due date shows the overdue badge and style
+- [x] The theme toggle switches and persists after a refresh
+- [x] Dragging a task reorders the list and the order persists
+- [x] Refreshing the page keeps all tasks
+- 
 ## Deployment
 
 The app is deployed to GitHub Pages using the `gh-pages` package.
@@ -128,5 +137,5 @@ npm run deploy
 
 ## Author
 
-**Your Name**
+**Ashad Alam**
 GitHub: [@ashad0806](https://github.com/ashad0806)
