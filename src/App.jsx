@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import useLocalStorage from './hooks/useLocalStorage';
 import { getDueStatus } from './utils/dates';
 import TaskForm from './components/TaskForm';
@@ -7,6 +7,7 @@ import FilterBar from './components/FilterBar';
 import Stats from './components/Stats';
 import ThemeToggle from './components/ThemeToggle';
 import SearchBox from './components/SearchBox';
+import Toast from './components/Toast';
 
 const systemTheme = () =>
   window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
@@ -18,9 +19,19 @@ function App() {
   const [categoryFilter, setCategoryFilter] = useState('All');
   const [searchText, setSearchText] = useState('');
 
+  // Delete + undo
+  const [deletedTask, setDeletedTask] = useState(null); // { task, index } | null
+  const deletedTimerRef = useRef(null);
+
   useEffect(() => {
     document.documentElement.classList.toggle('dark', theme === 'dark');
   }, [theme]);
+
+  useEffect(() => {
+    return () => {
+      if (deletedTimerRef.current) clearTimeout(deletedTimerRef.current);
+    };
+  }, []);
 
   const toggleTheme = () => setTheme((t) => (t === 'dark' ? 'light' : 'dark'));
 
@@ -43,7 +54,30 @@ function App() {
   };
 
   const deleteTask = (id) => {
+    const index = tasks.findIndex((t) => t.id === id);
+    if (index === -1) return;
+    const task = tasks[index];
+
     setTasks((prev) => prev.filter((t) => t.id !== id));
+
+    if (deletedTimerRef.current) clearTimeout(deletedTimerRef.current);
+    setDeletedTask({ task, index });
+    deletedTimerRef.current = setTimeout(() => setDeletedTask(null), 5000);
+  };
+
+  const undoDelete = () => {
+    if (!deletedTask) return;
+    const { task, index } = deletedTask;
+
+    setTasks((prev) => {
+      const next = [...prev];
+      const safeIndex = Math.min(index, next.length);
+      next.splice(safeIndex, 0, task);
+      return next;
+    });
+
+    if (deletedTimerRef.current) clearTimeout(deletedTimerRef.current);
+    setDeletedTask(null);
   };
 
   const editTask = (id, updates) => {
@@ -116,6 +150,15 @@ function App() {
           onReorder={reorderTasks}
         />
       </main>
+
+      {deletedTask && (
+        <Toast
+          message={`"${deletedTask.task.text}" deleted`}
+          actionLabel="Undo"
+          onAction={undoDelete}
+          onClose={() => setDeletedTask(null)}
+        />
+      )}
     </div>
   );
 }
